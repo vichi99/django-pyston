@@ -9,6 +9,7 @@ from pyston.serializer import get_resource_or_none
 from .exceptions import OrderIdentifierError
 from .parsers import DefaultOrderParser, OrderParserError
 from .django_sorters import DjangoSorter
+from .utils import DirectionSlug
 
 
 def get_allowed_order_fields_rfs_from_model(model):
@@ -219,4 +220,8 @@ class DjangoOrderManager(BaseParserModelOrderManager, BaseDjangoOrderManager):
     """
 
     def _sort_queryset(self, qs, terms):
+        # Adding pk makes ordering deterministic, when column has multiple same values.
+        terms.append(
+            DjangoSorter(('pk',), DirectionSlug.DESC if terms[-1].descending else DirectionSlug.ASC).get_order_term()
+        )
         return qs.order_by(*terms)
