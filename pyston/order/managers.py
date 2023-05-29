@@ -179,6 +179,8 @@ class BaseParserModelOrderManager(BaseModelOrderManager):
                 raise RestException(
                     mark_safe(ugettext('Invalid identifier of ordering "{}"').format(ordering_term.source))
                 )
+        # Adding pk makes ordering deterministic, when column has multiple same value
+        sorters.append(DjangoSorter(['pk'], None))
         return sorters
 
     def _convert_order_terms(self, sorters):
